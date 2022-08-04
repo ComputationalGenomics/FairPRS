@@ -2,7 +2,9 @@
 A fairness framework for Polygenic Risk Scores
 
 FairPRS offers an entire pipeline from genetic data to trait prediction. It has three possible access points for input: genotypes, genotypes with summary statistics, or a pre-computed PRS.
-Moreover, FairPRS extends IRM capabilities to predict a dabiased PRS.
+
+FairPRS proposes an Invariant Risk Minimization (IRM) approach for estimating fair PRS or debiasing pre-computed ones.
+
 
 ### Input output parameters
 
