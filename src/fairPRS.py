@@ -467,8 +467,8 @@ if __name__ == '__main__':
                 PRS_df_train.columns = ['PRS']
                 PRS_df_test = pd.DataFrame(X_test[:,1])
                 PRS_df_test.columns = ['PRS']
-                plot_fname_train = fname_root+'_PRS_train'+'_'+str(itr)
-                plot_fname_test = fname_root+'_PRS_test'+'_'+str(itr)
+                plot_fname_train = fname_root_out+'_PRS_train'+'_'+str(itr)
+                plot_fname_test = fname_root_out+'_PRS_test'+'_'+str(itr)
                 plot_prs_dist(popids_df=popids_df_train,PRS_df = PRS_df_train, fname_mod = plot_fname_train, mod_name=args.model_flag, simrel=0)
                 plot_prs_dist(popids_df=popids_df_test,PRS_df = PRS_df_test, fname_mod = plot_fname_test, mod_name=args.model_flag, simrel=0)
             print('Saved KDE plots in results directory')
@@ -504,7 +504,7 @@ if __name__ == '__main__':
                         ancs.iloc[:,0] = ancs.iloc[:,0].map(ancs_mapping_inv)
                     PRS_pred = pd.DataFrame(results_dict_irm['data']['PRS_pred_test'])
                     PRS_pred.columns = ['PRS']
-                    plot_fname = fname_root+'_PRS_test_predicted_'+str(itr)
+                    plot_fname = fname_root_out+'_PRS_test_predicted_'+str(itr)
                     if args.realdata_directory is not None:
                         plot_prs_dist(popids_df=ancs,PRS_df = PRS_pred, fname_mod = plot_fname, mod_name=args.model_flag, simrel=0)
                     else:
@@ -519,7 +519,7 @@ if __name__ == '__main__':
                         ancs.iloc[:,0] = ancs.iloc[:,0].map(ancs_mapping_inv)
                     PRS_pred = pd.DataFrame(results_dict_irm['data']['PRS_pred_train'])
                     PRS_pred.columns = ['PRS']
-                    plot_fname = fname_root+'_PRS_train_predicted_'+str(itr)
+                    plot_fname = fname_root_out+'_PRS_train_predicted_'+str(itr)
                     if args.realdata_directory is not None:
                         plot_prs_dist(popids_df=ancs,PRS_df = PRS_pred, fname_mod = plot_fname, mod_name=args.model_flag, simrel=0)
                     else:
@@ -534,7 +534,7 @@ if __name__ == '__main__':
                         ancs.iloc[:,0] = ancs.iloc[:,0].map(ancs_mapping_inv)
                     PRS_pred = pd.DataFrame(results_dict_irm['data']['Pheno_og_test'])
                     PRS_pred.columns = ['Phenotype']
-                    plot_fname = fname_root+'_Phenotype_test_'+str(itr)
+                    plot_fname = fname_root_out+'_Phenotype_test_'+str(itr)
                     if args.realdata_directory is not None:
                         plot_pheno_dist(popids_df=ancs,PRS_df = PRS_pred, fname_mod = plot_fname, mod_name=args.model_flag, simrel=0)
                     else:
@@ -549,7 +549,7 @@ if __name__ == '__main__':
                         ancs.iloc[:,0] = ancs.iloc[:,0].map(ancs_mapping_inv)
                     PRS_pred = pd.DataFrame(results_dict_irm['data']['Pheno_pred_test'])
                     PRS_pred.columns = ['Phenotype']
-                    plot_fname = fname_root+'_Phenotype_test_predicted_'+str(itr)
+                    plot_fname = fname_root_out+'_Phenotype_test_predicted_'+str(itr)
                     if args.realdata_directory is not None:
                         plot_pheno_dist(popids_df=ancs,PRS_df = PRS_pred, fname_mod = plot_fname, mod_name=args.model_flag, simrel=0)
                     else:
@@ -572,14 +572,14 @@ if __name__ == '__main__':
             #  Save ERM summary results
             metrics_df_erm = pd.concat(temp_erm)
             metrics_df_erm_out = pd.DataFrame(metrics_df_erm.loc[:,['loss_train','loss_test','R2_og_test','R2_pred_test','r2_prs_train','r2_prs_test','r2_pheno_train','r2_pheno_test' ]].mean()).T
-            metrics_df_erm_out.to_csv(str('../results/'+args.model_flag+'/'+fname_root+'_ERM_iters_results_'+str(itr)+'.csv'),index=False)
+            metrics_df_erm_out.to_csv(str('../results/'+args.model_flag+'/'+fname_root_out+'_ERM_iters_results_'+str(itr)+'.csv'),index=False)
 
             # Save dictionary of all reults, data, and hyperparams used per iteration on ERM
-            with open(str('../results/'+args.model_flag+'/'+fname_root+'_ERM_iters_results_dictionary_'+str(itr)+'.pkl'), 'wb') as f:
+            with open(str('../results/'+args.model_flag+'/'+fname_root_out+'_ERM_iters_results_dictionary_'+str(itr)+'.pkl'), 'wb') as f:
                 pickle.dump(results_erm_tun, f)
 
             # Display results for ERM 
-            print('Results saved into ',str('../results/'+args.model_flag+'/'+fname_root+'_ERM_iters_results_'+str(itr)+'.csv'))
+            print('Results saved into ',str('../results/'+args.model_flag+'/'+fname_root_out+'_ERM_iters_results_'+str(itr)+'.csv'))
             print(f'Average ERM model results: train MSE {round(metrics_df_erm_out["loss_train"][0],5)}, test MSE {round(metrics_df_erm_out["loss_test"][0],5)}, R2 original PRS {round(metrics_df_erm_out["R2_og_test"][0],5)}, R2 predicted PRS {round(metrics_df_erm_out["R2_pred_test"][0],5)}, r2 prs {round(metrics_df_erm_out["r2_prs_test"][0],5)}, r2 pheno {round(metrics_df_erm_out["r2_pheno_test"][0],5)}')
             
             print('='*40)
@@ -591,16 +591,15 @@ if __name__ == '__main__':
                 
             metrics_df = pd.concat(temp)
             metrics_df_out = pd.DataFrame(metrics_df.loc[:,['loss_train','loss_test','R2_og_test','R2_pred_test','r2_prs_train','r2_prs_test','r2_pheno_train','r2_pheno_test' ]].mean()).T
-            metrics_df_out.to_csv(str('../results/'+args.model_flag+'/'+fname_root+'_IRM_'+str(itr)+'_iters_results.csv'),index=False)
+            metrics_df_out.to_csv(str('../results/'+args.model_flag+'/'+fname_root_out+'_IRM_'+str(itr)+'_iters_results.csv'),index=False)
             pd.DataFrame(metrics_df_out.loc[:,['loss_train','loss_test','R2_og_test','R2_pred_test','r2_prs_train','r2_prs_test','r2_pheno_train','r2_pheno_test' ]].mean()).T.to_csv(str('../results/'+args.model_flag+'/'+fname_root+'_IRM_'+str(itr)+'_iters_results.csv'),index=False)
 
             # Save dictionary of all results, data, and hyperparams used per iteration on IRM
-            with open(str('../results/'+args.model_flag+'/IRM_'+fname_root+'_'+str(itr)+'_iters_results_dictionary.pkl'), 'wb') as f:
+            with open(str('../results/'+args.model_flag+'/IRM_'+fname_root_out+'_'+str(itr)+'_iters_results_dictionary.pkl'), 'wb') as f:
                 pickle.dump(results_irm_tun, f)
 
             # Display results for IRM 
-            print('Results saved into ',str('../results/'+args.model_flag+'/IRM_'+fname_root+'_'+str(itr)+'_iters_results.csv'))
+            print('Results saved into ',str('../results/'+args.model_flag+'/IRM_'+fname_root_out+'_'+str(itr)+'_iters_results.csv'))
             print(f'Average IRM model results: train MSE {round(metrics_df_out["loss_train"][0],5)}, test MSE {round(metrics_df_out["loss_test"][0],5)}, R2 original PRS {round(metrics_df_out["R2_og_test"][0],5)}, R2 predicted PRS {round(metrics_df_out["R2_pred_test"][0],5)}, r2 prs {round(metrics_df_out["r2_prs_test"][0],5)},r2 pheno {round(metrics_df_out["r2_pheno_test"][0],5)}')
             print('='*40)
-    
     print("--- Total run time in %s seconds ---" % (time.time() - begin_time))
