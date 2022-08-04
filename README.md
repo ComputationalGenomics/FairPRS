@@ -84,3 +84,7 @@ Note: UKB data is not included in this repository, command just for ilustration 
 
 ### Repo structure
 Two main folders, src and data. src contains the FairPRS code, while data contains all the sample data described above.
+
+### Contact
+Diego Machado Reyes (machad at rpi dot edu) 
+Aritra Bose (a dot bose at ibm dot com)
