@@ -12,7 +12,9 @@ Moreover, to compute the PRS the following files are required per PRS computatio
 - Genotype - Plink files (BED,BIM,FAM) for each PRS train and test.
 - Phenotype - It can be a stand alone file for each PRS computation or if not provided the phenotype will be extracted from the FAM file. The file should be a .txt file formated with 3 columns FID,IID,PHENO.
 - Covariates - One file per PRS containing all the covaraites to be included. Formated with the first column being IID and as many columns as covariates.
+
 If started at access point 1, there is no need to add more files as all required files are generated in step 1.
+
 For access point 3 (FairPRS), one file containing the following data is required:
 - EID - First column contains the sample IDs.
 - PRS - Second column should contain all the PRS scores.
