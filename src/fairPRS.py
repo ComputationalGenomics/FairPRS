@@ -592,7 +592,7 @@ if __name__ == '__main__':
             metrics_df = pd.concat(temp)
             metrics_df_out = pd.DataFrame(metrics_df.loc[:,['loss_train','loss_test','R2_og_test','R2_pred_test','r2_prs_train','r2_prs_test','r2_pheno_train','r2_pheno_test' ]].mean()).T
             metrics_df_out.to_csv(str('../results/'+args.model_flag+'/'+fname_root_out+'_IRM_'+str(itr)+'_iters_results.csv'),index=False)
-            pd.DataFrame(metrics_df_out.loc[:,['loss_train','loss_test','R2_og_test','R2_pred_test','r2_prs_train','r2_prs_test','r2_pheno_train','r2_pheno_test' ]].mean()).T.to_csv(str('../results/'+args.model_flag+'/'+fname_root+'_IRM_'+str(itr)+'_iters_results.csv'),index=False)
+            pd.DataFrame(metrics_df_out.loc[:,['loss_train','loss_test','R2_og_test','R2_pred_test','r2_prs_train','r2_prs_test','r2_pheno_train','r2_pheno_test' ]].mean()).T.to_csv(str('../results/'+args.model_flag+'/'+fname_root_out+'_IRM_'+str(itr)+'_iters_results.csv'),index=False)
 
             # Save dictionary of all results, data, and hyperparams used per iteration on IRM
             with open(str('../results/'+args.model_flag+'/IRM_'+fname_root_out+'_'+str(itr)+'_iters_results_dictionary.pkl'), 'wb') as f:
