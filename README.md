@@ -53,11 +53,13 @@ Similarly to the previous access point, if started at access point 2, all requir
 ```
 python fairPRS.py -g 0 -p 1 -fair 1 -iters 1 -plot_inp_dist 1 -plot_out_dist 1 -envs 3 --trait 1 --model PSD -fi PSD_10_20_70_continuous_0.05 -num_pcs 8 -num_cov 0
 ```
-Note: Flag `g` is disabled as the genotype files for GWAS are too large to be hosted in GitHub.
+Note: Flag `-g` is disabled as the genotype files for GWAS are too large to be hosted in GitHub.
 After cloning the repo `cd src` and run the comand above. It will perform the baseline PRS calculation, train, tune and evaluate FairPRS using the available sample data.
 #### Compute train/tune model with real data
 ```
 python fairPRS.py -g 0 -p 0 -fair 1 -iters 10 -plot_inp_dist 1 -plot_out_dist 1 -envs 6 --trait 1 --model PSD -fo UKB_height -d ../data/UKB_height/UKB_height_df.csv -num_pcs 8 -num_cov 0
 ```
 Note: UKB data is not included in this repository, command just for ilustration purposes.
+
 ### Repo structure
+Two main folders, src and data. src contains the FairPRS code, while data contains all the sample data described above.
