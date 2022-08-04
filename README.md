@@ -87,4 +87,5 @@ Two main folders, src and data. src contains the FairPRS code, while data contai
 
 ### Contact
 Diego Machado Reyes (machad at rpi dot edu) 
+
 Aritra Bose (a dot bose at ibm dot com)
