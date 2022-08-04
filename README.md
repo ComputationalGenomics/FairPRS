@@ -9,7 +9,7 @@ FairPRS offers an entire pipeline from genetic data to trait prediction. It has 
 If starting at the genotype access point of the pipeline, the required inputs are:
 - Plink files (BED,BIM,FAM) containing the genotype data for GWAS, FairPRS training and testing, respectively (total of 9).
 
-Access point 1 (`-g 1`) will save files for the formated summary statistics, and principal component (PC) files for each input in the data directory.
+Access point 1 (`-g 1`) will save files for the formated summary statistics, and covariates (age, sex, principal component (PC), etc.) files for each input in the data directory.
 
 
 Moreover, to compute the PRS the following files are required per PRS computation.
