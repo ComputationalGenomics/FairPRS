@@ -214,10 +214,10 @@ def test_model(model, test_loader, trait):
         test_loss_pheno /= len(test_loader.dataset)
         test_loss = test_loss_prs + test_loss_pheno
         if trait == 1:
-            model_prs_org = sm.OLS(targets,np.concatenate((pcs_all,data_out_r2),axis =1))
+            model_prs_org = sm.OLS(targets,np.concatenate((data_out_r2,pcs_all),axis =1))
             results_og = model_prs_org.fit()
             coef_det_og = results_og.rsquared_adj 
-            model_prs_pred = sm.OLS(targets,np.concatenate((pcs_all,outputs),axis =1))
+            model_prs_pred = sm.OLS(targets,np.concatenate((outputs,pcs_all),axis =1))
             results_prs_pred = model_prs_pred.fit()
             coef_det_prs_pred = results_prs_pred.rsquared_adj
         else:
@@ -368,7 +368,7 @@ class encoder(nn.Module):
         # self.num_classes = 11
         # self.embed_ancs = nn.Embedding(self.num_classes, embedding_dim=1)
         self.linears = nn.ModuleList()
-        self.linears.append(nn.Linear(1+num_pcs+3,units))
+        self.linears.append(nn.Linear(1+num_pcs,units))
         # if len(units)>1:
             # for i in range(len(units)-1):
             #     self.linears.append(nn.Linear(units, units))
