@@ -4,9 +4,14 @@ A fairness framework for Polygenic Risk Scores
 FairPRS proposes an Invariant Risk Minimization (IRM) approach for estimating fair PRS or debiasing pre-computed ones.
 FairPRS offers an entire pipeline from genetic data to trait prediction. It has three possible access points for input: genotypes, genotypes with summary statistics, or a pre-computed PRS.
 
-### Input output parameters
+### Input - Output parameters
   
-If starting at the genotype access point of the pipeline, the required inputs are 3 Plink files (BED,BIM,FAM) containing the genotype data for GWAS, FairPRS training and testing, respectively.
+If starting at the genotype access point of the pipeline, the required inputs are:
+- Plink files (BED,BIM,FAM) containing the genotype data for GWAS, FairPRS training and testing, respectively (total of 9).
+
+Access point 1 (`-g 1`) will save files for the formated summary statistics, and principal component (PC) files for each input in the data directory.
+
+
 Moreover, to compute the PRS the following files are required per PRS computation.
 - GWAS - summary statics for betas extraction. The same file is used for both PRS computations.
 - Genotype - Plink files (BED,BIM,FAM) for each PRS train and test.
@@ -14,6 +19,9 @@ Moreover, to compute the PRS the following files are required per PRS computatio
 - Covariates - One file per PRS containing all the covaraites to be included. Formated with the first column being IID and as many columns as covariates.
 
 If started at access point 1, there is no need to add more files as all required files are generated in step 1.
+
+Access point 2 (`-p 1`) will save files containing PRS scores for each input in the data directory.
+If `plot_inp_dist` flag activated, it will also save KDE plots for each input with the PRS distributions by population in the results directory.
 
 For access point 3 (FairPRS), one file containing the following data is required:
 - EID - First column contains the sample IDs.
@@ -23,6 +31,19 @@ For access point 3 (FairPRS), one file containing the following data is required
 - Covariates - The remaining columns should contain the covariates to include (e.g Age, Sex, PCs). Based on the covariates flag the number of these to be included can be selected.
 
 Similarly to the previous access point, if started at access point 2, all required files are generated in step 1 except for the population IDs (which are provided as part of the demo data).
+
+If `plot_out_dist` and/or `plot_out_dist` flags are activated, it will also save KDE plots for each input/output with the PRS distributions by population.
+Access point 3 (`-fair 1`) will save files containing the summary of results over the iterations an a dictionary containing all the predicted and original PRS, and results, hyperparams per iteration. Results dictionary structure is as follows:
+results_ret = {
+      'metrics':{'R2_og_train', 'R2_og_val', 'R2_og_test':, 'R2_pred_train':, 'R2_pred_val':, 'R2_pred_test':, 'r2_prs_train':, 'r2_prs_val':, 'r2_prs_test', 'r2_pheno_train', 'r2_pheno_val', 'r2_pheno_test':, 'loss_train':, 'loss_val':, 'loss_test'},
+      'data':{
+          'PRS_og_train':, 'PRS_og_val':, 'PRS_og_test':, 'PRS_pred_train':, 'PRS_pred_val':, 'PRS_pred_test':, 'Pheno_og_train':, 'Pheno_og_val':, 'Pheno_og_test':, 'Pheno_pred_train':, 'Pheno_pred_val':, 'Pheno_pred_test':, 'ancs_train':, 'ancs_val':, 'ancs_test':, 'pcs_train':, 'pcs_val':, 'pcs_test':, 'deciles_r2s_pred_train':,  'deciles_r2s_pred_val':, 'deciles_r2s_pred_test':, 'deciles_r2s_og_train':, 'deciles_r2s_og_val':, 'deciles_r2s_og_test':,
+      },
+      'hyperparams':{
+          'lr', 'pen_mult', 'units'
+      }
+  }
+
 
 ### Flags
 - `-g --GWAS_PC_calc` -> Access point 1 of the pipeline. GWAS and PCA computation. Enter (1 - yes, 0 no) to run or skip this segment.
