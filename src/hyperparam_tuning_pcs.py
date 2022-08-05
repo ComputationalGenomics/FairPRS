@@ -43,7 +43,7 @@ def erm_train(config, train_data, val_data, trait, num_pcs, checkpoint_dir=None)
 
 
     for epoch in range(1, 11):
-        for batch_idx, (data, target, pcs, ancestry) in enumerate(train_loader):
+        for batch_idx, (_, data, target, pcs, ancestry) in enumerate(train_loader):
             data, target, pcs, ancestry = data.to(device), target.to(device).float(), pcs.to(device).float(), ancestry.to(device).long()
             data = torch.unsqueeze(data, 1)
             optimizer.zero_grad()
@@ -57,8 +57,8 @@ def erm_train(config, train_data, val_data, trait, num_pcs, checkpoint_dir=None)
             loss.backward()
             optimizer.step()
         
-        train_l,  train_R2_og, train_R2_pred, train_prs_corr, train_pheno_corr, train_out, train_zt_med, train_ancs, train_pred_phenos, train_targets, train_prs, deciles_pred_train, deciles_og_train, pcs_train = test_model(model, train_loader, trait)
-        val_l,  val_R2_og, val_R2_pred, val_prs_corr, val_pheno_corr, val_out, val_zt_med, val_ancs, val_pred_phenos, val_targets, train_prs, deciles_pred_val, deciles_og_val, pcs_val = test_model(model, val_loader, trait)
+        _, train_l,  train_R2_og, train_R2_pred, train_prs_corr, train_pheno_corr, train_out, train_zt_med, train_ancs, train_pred_phenos, train_targets, train_prs, deciles_pred_train, deciles_og_train, pcs_train = test_model(model, train_loader, trait)
+        _, val_l,  val_R2_og, val_R2_pred, val_prs_corr, val_pheno_corr, val_out, val_zt_med, val_ancs, val_pred_phenos, val_targets, train_prs, deciles_pred_val, deciles_og_val, pcs_val = test_model(model, val_loader, trait)
         
         with tune.checkpoint_dir(epoch) as checkpoint_dir:
             path = os.path.join(checkpoint_dir, "checkpoint")
@@ -110,7 +110,7 @@ def irm_train(config, train_datasets, val_data, device, num_envs, trait, num_pcs
             error = 0
             penalty = 0
             for loader in train_loaders:
-                data, target, pcs, ancestry = next(loader, (None, None, None, None))
+                _, data, target, pcs, ancestry = next(loader, (None, None, None, None, None))
                 if data is None:
                     break
                 data, target, pcs, ancestry = data.to(device), target.to(device).float(), pcs.to(device).float(), ancestry.to(device).long()
@@ -134,7 +134,7 @@ def irm_train(config, train_datasets, val_data, device, num_envs, trait, num_pcs
         batch_idx += 1
         
         # train_l,  train_R2_og, train_R2_pred, train_prs_corr, train_pheno_corr, train_out, train_zt_med, train_ancs, train_pred_phenos, train_targets, train_prs = test_model(model, train_loader)
-        val_l,  val_R2_og, val_R2_pred, val_prs_corr, val_pheno_corr, val_out, val_zt_med, val_ancs, val_pred_phenos, val_targets, val_prs,deciles_pred_val, deciles_og_val, pcs = test_model(model, val_loader, trait)
+        _, val_l, val_R2_og, val_R2_pred, val_prs_corr, val_pheno_corr, val_out, val_zt_med, val_ancs, val_pred_phenos, val_targets, val_prs,deciles_pred_val, deciles_og_val, pcs = test_model(model, val_loader, trait)
         
         with tune.checkpoint_dir(epoch) as checkpoint_dir:
             path = os.path.join(checkpoint_dir, "checkpoint")
@@ -183,9 +183,10 @@ def test_model(model, test_loader, trait):
         ztests = []
         pcs_all = []
         data_out_r2 = []
+        ids_out = []
 
         with torch.no_grad():
-            for data, target, pcs, ancestry in test_loader:
+            for ids, data, target, pcs, ancestry in test_loader:
                 data, target, pcs, ancestry = data.to(device), target.to(device).float(), pcs.to(device).float(), ancestry.to(device).long()
                 # Model testing
                 data = torch.unsqueeze(data, 1)
@@ -204,10 +205,10 @@ def test_model(model, test_loader, trait):
                 ancestries.extend(ancestry.detach().numpy())
                 datas_corr.extend(data_out[:,0])
                 outputs_phenos.extend(pheno_out.detach().numpy())
-                #compute ancestry specific z-tests
                 data_out_a = np.concatenate((data_out,ancestry_out),axis=1)
                 pcs_all.extend(pcs.detach().numpy())
                 data_out_r2.extend(data.detach().numpy())
+                ids_out.extend(ids.detach().numpy())
 
         # Dataloader metric computation
         test_loss_prs /= len(test_loader.dataset)
@@ -234,7 +235,7 @@ def test_model(model, test_loader, trait):
         deciles_pred = decile_r2s(prs=np.squeeze(outputs),pheno=np.squeeze(targets),ancs=np.squeeze(ancestries))
         deciles_og = decile_r2s(prs=np.squeeze(datas_corr),pheno=np.squeeze(targets),ancs=np.squeeze(ancestries))
 
-        return test_loss, coef_det_og, coef_det_prs_pred, prs_corr, pheno_corr, outputs, 10, ancestries, outputs_phenos, targets, datas_corr, deciles_pred, deciles_og, pcs
+        return ids_out, test_loss, coef_det_og, coef_det_prs_pred, prs_corr, pheno_corr, outputs, 10, ancestries, outputs_phenos, targets, datas_corr, deciles_pred, deciles_og, pcs
 
 
 def tuner(train_data, test_data, all_train_data=None, irm=True, config = None, num_samples=10, max_num_epochs=10, num_envs =None, trait = 1, num_pcs = 8 ,device='cpu', gpus_per_trial=0):
@@ -302,9 +303,9 @@ def tuner(train_data, test_data, all_train_data=None, irm=True, config = None, n
         train_loader = torch.utils.data.DataLoader(train_data, batch_size=len(train_data), shuffle=True)
     val_loader = torch.utils.data.DataLoader(test_data, batch_size=len(test_data), shuffle=True)
     test_loader = torch.utils.data.DataLoader(test_data, batch_size=len(test_data), shuffle=True)
-    loss_train, R2_og_train, R2_pred_train, prs_corr_train, pheno_corr_train, outputs_train, ztest_med_train, ancestries_train, outputs_phenos_train, targets_train, prs_og_train, decile_r2s_pred_train, decile_r2s_og_train, pcs_train = test_model(best_trained_model, train_loader, trait)
-    loss_val, R2_og_val, R2_pred_val, prs_corr_val, pheno_corr_val, outputs_val, ztest_med_val, ancestries_val, outputs_phenos_val, targets_val, prs_og_val, decile_r2s_pred_val, decile_r2s_og_val, pcs_val  = test_model(best_trained_model, val_loader, trait)
-    loss_test, R2_og_test, R2_pred_test, prs_corr_test, pheno_corr_test, outputs_test, ztest_med_test, ancestries_test, outputs_phenos_test, targets_test, prs_og_test, decile_r2s_pred_test, decile_r2s_og_test, pcs_test = test_model(best_trained_model, test_loader, trait)
+    ids_out_train, loss_train, R2_og_train, R2_pred_train, prs_corr_train, pheno_corr_train, outputs_train, ztest_med_train, ancestries_train, outputs_phenos_train, targets_train, prs_og_train, decile_r2s_pred_train, decile_r2s_og_train, pcs_train = test_model(best_trained_model, train_loader, trait)
+    ids_out_val, loss_val, R2_og_val, R2_pred_val, prs_corr_val, pheno_corr_val, outputs_val, ztest_med_val, ancestries_val, outputs_phenos_val, targets_val, prs_og_val, decile_r2s_pred_val, decile_r2s_og_val, pcs_val  = test_model(best_trained_model, val_loader, trait)
+    ids_out_test, loss_test, R2_og_test, R2_pred_test, prs_corr_test, pheno_corr_test, outputs_test, ztest_med_test, ancestries_test, outputs_phenos_test, targets_test, prs_og_test, decile_r2s_pred_test, decile_r2s_og_test, pcs_test = test_model(best_trained_model, test_loader, trait)
 
     print("Best trial test set R2: {}".format(R2_pred_test))
 
@@ -328,6 +329,9 @@ def tuner(train_data, test_data, all_train_data=None, irm=True, config = None, n
             'loss_test':loss_test
         },
         'data':{
+            'ids_out_train':ids_out_train,
+            'ids_out_val':ids_out_val,
+            'ids_out_test':ids_out_test,
             'PRS_og_train':prs_og_train,
             'PRS_og_val':prs_og_val,
             'PRS_og_test':prs_og_test,
