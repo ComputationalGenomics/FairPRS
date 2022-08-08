@@ -8,8 +8,9 @@ FairPRS offers an entire pipeline from genetic data to trait prediction. It has 
   
 If starting at the genotype access point of the pipeline, the required inputs are:
 - Plink files (BED,BIM,FAM) containing the genotype data for GWAS, FairPRS training and testing, respectively (total of 9).
+- For example, geno_train.bed/bim/fam, geno_prs_train.bed/bim/fam, geno_prs_test.bed/bim/fam
 
-Access point 1 (`-g 1`) will save files for the formated summary statistics, and covariates (age, sex, principal component (PC), etc.) files for each input in the data directory.
+Access point 1 (`--access geno`) will save files for the formated summary statistics, and covariates (age, sex, principal component (PC), etc.) files for each input in the data directory.
 
 
 Moreover, to compute the PRS the following files are required per PRS computation.
@@ -20,10 +21,10 @@ Moreover, to compute the PRS the following files are required per PRS computatio
 
 If started at access point 1, there is no need to add more files as all required files are generated in step 1.
 
-Access point 2 (`-p 1`) will save files containing PRS scores for each input in the data directory.
+Access point 2 (`--access sumstats`) will save files containing PRS scores for each input in the data directory.
 If `plot_inp_dist` flag activated, it will also save KDE plots for each input with the PRS distributions by population in the results directory.
 
-For access point 3 (FairPRS), one file containing the following data is required:
+For access point 3 (`--access prs`), one file containing the following data is required:
 - EID - First column contains the sample IDs.
 - PRS - Second column should contain all the PRS scores.
 - Population IDs - Third column should have the phenotype.
@@ -46,9 +47,7 @@ results_ret = {
 
 
 ### Flags
-- `-g --GWAS_PC_calc` -> Access point 1 of the pipeline. GWAS and PCA computation. Enter (1 - yes, 0 no) to run or skip this segment.
-- `-p --PRS_calc` Access -> point 2 of the pipeline. PRS computation. Enter (1 - yes, 0 no) to run or skip this segment.
-- `-fair  --fairPRS_calc` -> Access point 3 of the pipeline. Run FairPRS model training/tuning/evaluation. Enter (1 - yes, 0 no) to run or skip this segment.
+-  `-a --access` -> Access point flag. Takes comma separated inputs {geno, sumstat, prs}. E.g. `--access sumstat,prs`. Access points: (geno) - GWAS and PCA computation, (sumstat) - PRS computation, (prs) - Run FairPRS model training/tuning/evaluation.
 - `-d  --dir` -> Path to the real PRS dataset when starting at access point 3.
 - `-plot_inp_dist  --plot_input_distributions` -> Enter (1 - yes, 0 no) to plot input PRS distributions.
 - `-plot_out_dist  --plot_output_distributions` -> Enter (1 - yes, 0 no) to plot output PRS and phenotype distributions (after FairPRS).
