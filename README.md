@@ -35,7 +35,7 @@ Similarly to the previous access point, if started at access point 2, all requir
 
 If `plot_out_dist` and/or `plot_out_dist` flags are activated, it will also save KDE plots for each input/output with the PRS distributions by population.
 
-Access point 3 (`-fair 1`) will save files containing the summary of results over the iterations an a dictionary containing all the predicted and original PRS, and results, hyperparams per iteration. Results dictionary structure per iteration is as follows:
+Access point 3 (`--access prs`) will save files containing the summary of results over the iterations an a dictionary containing all the predicted and original PRS, and results, hyperparams per iteration. Results dictionary structure per iteration is as follows:
 
 results_ret = {
 - 'metrics':{'R2_og_train', 'R2_og_val', 'R2_og_test', 'R2_pred_train', 'R2_pred_val', 'R2_pred_test', 'r2_prs_train', 'r2_prs_val', 'r2_prs_test', 'r2_pheno_train', 'r2_pheno_val', 'r2_pheno_test', 'loss_train', 'loss_val', 'loss_test'},
