@@ -73,7 +73,7 @@ results_ret = {
 ```
 python fairPRS.py -g 0 -p 1 -fair 1 -iters 1 -plot_inp_dist 1 -plot_out_dist 1 -envs 3 --trait 1 --model PSD -fi PSD_10_20_70_continuous_0.05 -num_pcs 8 -num_cov 0
 ```
-Note: Flag `-g` is disabled as the genotype files for GWAS are too large to be hosted in GitHub.
+Note: Option `--access geno` is disabled as the genotype files for GWAS are too large to be hosted in GitHub.
 After cloning the repo `cd src` and run the comand above. It will perform the baseline PRS calculation, train, tune and evaluate FairPRS using the available sample data.
 #### Compute train/tune model with real data
 ```
