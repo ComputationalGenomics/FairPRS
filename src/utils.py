@@ -5,6 +5,7 @@ import seaborn as sns
 from sklearn.model_selection import train_test_split
 import pandas as pd
 from prs_dataset import PRS
+import pickle
 
 # Plotting PRS distributions by pop
 def plot_prs_dist(prs_fname = None ,popids_fname= None, PRS_df = None, popids_df = None, fname_mod = None, path = '../data/', mod_name=None, simrel=None):
@@ -67,7 +68,7 @@ def plot_pheno_dist(prs_fname = None ,popids_fname= None, PRS_df = None, popids_
         plt.savefig(str('../results/'+mod_name+'/plots/'+fname_mod+'.png'))
     plt.clf()
 
-def plot_out(results_dict_irm, plot_fname, model_flag, train_test):
+def plot_out(results_dict_irm, plot_fname, model_flag, train_test, simrel):
     # Plot predicted PRS distributions per population
     ancs = pd.DataFrame(results_dict_irm['data'][str('ancs_'+train_test)])
     uniques = np.unique(ancs.iloc[:,0], return_counts = True)[0]
@@ -75,7 +76,7 @@ def plot_out(results_dict_irm, plot_fname, model_flag, train_test):
     ancs.iloc[:,0] = ancs.iloc[:,0].map(ancs_mapping_inv)
     PRS_pred = pd.DataFrame(results_dict_irm['data'][str('PRS_pred_'+train_test)])
     PRS_pred.columns = ['PRS']
-    plot_prs_dist(popids_df=ancs,PRS_df = PRS_pred, fname_mod = plot_fname, mod_name=model_flag, simrel=0)
+    plot_prs_dist(popids_df=ancs,PRS_df = PRS_pred, fname_mod = str(plot_fname[0]+'_PRS_predicted'+plot_fname[1]), mod_name=model_flag, simrel=simrel)
 
     # Plot predicted Phenotype distributions per population
     ancs = pd.DataFrame(results_dict_irm['data'][str('ancs_'+train_test)])
@@ -84,17 +85,21 @@ def plot_out(results_dict_irm, plot_fname, model_flag, train_test):
     ancs.iloc[:,0] = ancs.iloc[:,0].map(ancs_mapping_inv)
     PRS_pred = pd.DataFrame(results_dict_irm['data'][str('Pheno_og_'+train_test)])
     PRS_pred.columns = ['Phenotype']
-    plot_pheno_dist(popids_df=ancs,PRS_df = PRS_pred, fname_mod = plot_fname, mod_name=model_flag, simrel=0)
+    plot_pheno_dist(popids_df=ancs,PRS_df = PRS_pred, fname_mod = str(plot_fname[0]+'_Phenotype_predicted'+plot_fname[1]), mod_name=model_flag, simrel=simrel)
 
-def results_summary(results_dict, mod_name):
+def results_summary(results_dict, mod_name, model_flag, fname_root_out, itr, saveres):
     # Load results from all iterations for summary results                 
     temp = []
     for k in results_dict.keys():
         temp.append(pd.DataFrame.from_dict(results_dict[k]['metrics']))
         
     metrics_df = pd.concat(temp)
-    print(f'Average {mod_name} model results: train MSE {round(metrics_df_out["loss_train"][0],5)}, test MSE {round(metrics_df_out["loss_test"][0],5)}, R2 original PRS {round(metrics_df_out["R2_og_test"][0],5)}, R2 predicted PRS {round(metrics_df_out["R2_pred_test"][0],5)}, r2 prs {round(metrics_df_out["r2_prs_test"][0],5)},r2 pheno {round(metrics_df_out["r2_pheno_test"][0],5)}')
     metrics_df_out =  pd.DataFrame(metrics_df.loc[:,['loss_train','loss_test','R2_og_test','R2_pred_test','r2_prs_train','r2_prs_test','r2_pheno_train','r2_pheno_test' ]].mean()).T
+    print(f'Average {mod_name} model results: train MSE {round(metrics_df_out["loss_train"][0],5)}, test MSE {round(metrics_df_out["loss_test"][0],5)}, R2 original PRS {round(metrics_df_out["R2_og_test"][0],5)}, R2 predicted PRS {round(metrics_df_out["R2_pred_test"][0],5)}, r2 prs {round(metrics_df_out["r2_prs_test"][0],5)},r2 pheno {round(metrics_df_out["r2_pheno_test"][0],5)}')
+
+    if saveres:
+        with open(str('../results/'+model_flag+'/'+mod_name+'_'+fname_root_out+'_'+str(itr)+'_iters_results_dictionary.pkl'), 'wb') as f:
+            pickle.dump(results_dict, f)
     return metrics_df_out
 
 def plot_ins(X, fname_root_out, itr, model_flag, train_test):
@@ -159,3 +164,61 @@ def data_prep(real_data_df, val_size, test_size, num_pcs, num_covs, num_envs, rn
         return all_train_data, train_datasets, val_data, test_data, X_train, X_test
     else:
         return all_train_data, train_datasets, val_data, test_data
+
+def data_prep_simdata(model_flag, fname_root, itr, num_envs):
+    # Load PRS and pheno
+    # Load train and test PRS
+    plink_prs_train = pd.read_csv(str('../data/'+model_flag+'/'+fname_root+'_PRS_prsice_train_'+str(itr)+'.best'), sep = '\s+')
+    plink_prs_test = pd.read_csv(str('../data/'+model_flag+'/'+fname_root+'_PRS_prsice_test_'+str(itr)+'.best'), sep = '\s+')
+    prs_train = plink_prs_train.PRS.values
+    prs_test = plink_prs_test.PRS.values
+
+    # add column with ancestry name
+    pop_ids_train = pd.read_csv(str('../data/'+model_flag+'/'+fname_root+'_PRS_train_pop_ids_'+str(itr)+'.txt'),header = None)
+    pop_ids_test = pd.read_csv(str('../data/'+model_flag+'/'+fname_root+'_PRS_test_pop_ids_'+str(itr)+'.txt'),header = None)
+    pop_ids_train = pop_ids_train.values
+    pop_ids_test = pop_ids_test.values
+
+    # Load pheno and keep as y
+    pheno_train  = pd.read_csv(str('../data/'+model_flag+'/'+fname_root+'_PRS_train_'+str(itr)+'.fam'), sep = '\t', header = None)
+    pheno_test  = pd.read_csv(str('../data/'+model_flag+'/'+fname_root+'_PRS_test_'+str(itr)+'.fam'), sep = '\t', header = None)
+    y_train = pheno_train.iloc[:,5].values
+    y_train = np.expand_dims(y_train,1)
+    y_test = pheno_test.iloc[:,5].values
+    y_test = np.expand_dims(y_test,1)
+
+    # Load pcs 
+    pcs_train = pd.read_csv(str('../data/'+model_flag+'/'+fname_root+'_PRS_train_PCA_out_'+str(itr)+'_singularVectors.txt'), sep = '\t')
+    pcs_train = pcs_train.values[:,1:]
+
+    pcs_test = pd.read_csv(str('../data/'+model_flag+'/'+fname_root+'_PRS_test_PCA_out_'+str(itr)+'_singularVectors.txt'), sep = '\t')
+    pcs_test = pcs_test.values[:,1:]
+
+    # Split train into enviornments
+    ids_train_chunks = np.array_split(np.arange(len(prs_train)),num_envs)
+    prs_train_chunks = np.array_split(prs_train,int(num_envs))
+    pop_ids_train_chunks = np.array_split(pop_ids_train,int(num_envs))
+    pcs_train_chunks = np.array_split(pcs_train,int(num_envs))
+    y_train_chunks = np.array_split(y_train,int(num_envs)) 
+    
+    if itr%10 == 0:
+        print('Train and Test data successfully read in')
+    
+    ## Create dataloaders - train_n and test
+    # Load and split into train test sets 
+    train_datasets = []
+    for i in range(int(num_envs)):
+        train_datasets.append(PRS(ids_train_chunks[i],prs_train_chunks[i],y_train_chunks[i],pcs_train_chunks[i],pop_ids_train_chunks[i]))
+
+    all_train_data = PRS(np.arange(len(prs_train)),prs_train,y_train,pcs_train,pop_ids_train)
+    test_data = PRS(np.arange(len(prs_train)),prs_test, y_test, pcs_test, pop_ids_test)
+
+    return all_train_data, train_datasets, test_data
+
+def plot_ins_simdata(fname_root, itr, model_flag):
+    # Set population id file names for loading
+    popids_train_fname = [fname_root+'_PRS_train_',str(itr)]
+    popids_test_fname = [fname_root+'_PRS_test_',str(itr)]
+    # Plot PRS train and test distributions by ancestry (population id) group
+    plot_prs_dist(str(fname_root+'_PRS_prsice_train_'+str(itr)+'.best'),popids_train_fname, path=str('../data/'+model_flag), mod_name=model_flag, simrel=1)
+    plot_prs_dist(str(fname_root+'_PRS_prsice_test_'+str(itr)+'.best'),popids_test_fname, path=str('../data/'+model_flag), mod_name=model_flag, simrel=1)

@@ -1,4 +1,9 @@
 import os, argparse, time, subprocess, string
+import pandas as pd
+import summary_stats
+import prs_base
+import fairPRS
+from utils import results_summary
 
 def msg(name=None):
     return '''FairPRS.py
@@ -75,9 +80,97 @@ def parse_arguments():
     parser.add_argument("-gwas_fname", "--gwas_fname", dest='gwas_path', action='store', help='Enter path for summary statistics file for PRS', metavar='GWASFNAME')
     parser.add_argument("-geno_fname", "--geno_fname", dest='geno_path', action='store', help='Enter path for genotype file for PRS', metavar='GENOFNAME')
     parser.add_argument("-covs_fname", "--covs_fname", dest='covs_path', action='store', help='Enter path for covariates file for PRS', metavar='COVSFNAME')
+    parser.add_argument("-a", "--access", dest='access', action='store', help='Enter the access points of the pipeline to run. i.e type geno,sumstat,prs (comma separated)', metavar='ACCESS')
+    parser.add_argument("-sav", "--saveres", dest='saveres', action='store', help='Enter 1 for saving results or 0 for only print out ', metavar='SAVERES', default=1)
     
 #     parser.add_argument("-src_path", "--scripts_path", dest='scripts_path', action='store', help="Enter the data_sim ", metavar="DFLAG")
 
     args = parser.parse_args()
 
-    return args
+    return args 
+
+if __name__ == '__main__':
+    begin_time = time.time()
+    args = parse_arguments()
+    
+    ### Prepare environment ###
+    if not os.path.isdir('../data'):
+        os.system('mkdir ../data')
+    if not os.path.isdir('../results'):
+        os.system('mkdir ../results')
+    
+    # Parse to local variables
+    iters = int(args.iters)
+
+    if int(args.trait_flag) == 1:
+        pheno = 'continuous'
+        binary_target = 'F'
+        trait_flag = 1
+    elif int(args.trait_flag) == 0:
+        pheno = 'Binary'
+        binary_target = 'T'
+        trait_flag = 0
+
+    load_data = False
+    if args.PRS_load_path:
+        load_data = True
+        args.step3 = 1
+
+    if int(args.step3)==1:
+        load_data = True
+    
+    if args.prop is not None:
+        prop_genetic,prop2_environmental,prop3_noise = args.prop.split(',',2)
+    if args.sample_size_flag is not None:
+        train_size,PRS_train_size,PRS_test_size = args.sample_size_flag.split(',',2)
+
+    if args.fname_prefix_root is not None:
+        fname_root = args.fname_prefix_root
+    
+    if args.fname_out_root is not None:
+        fname_root_out = args.fname_out_root
+
+    model_flag = args.model_flag
+    num_pcs = int(args.num_pcs)
+    num_envs = int(args.envs_flag)
+    num_covs = int(args.num_covs)
+    man_plot = bool(int(args.man_plot))
+    gwas_path = args.geno_path
+    pheno_path = args.pheno_path
+    geno_path = args.geno_path
+    covs_path = args.covs_path
+    access = args.access.split(',')
+    gpu = bool(int(args.gpu))
+    rnd_state = int(args.random_seed)
+    plot_input_dists = bool(int(args.plot_input_dists))
+    plot_output_dists = bool(int(args.plot_output_dists))
+    saveres = bool(int(args.saveres))
+
+
+
+
+    for itr in range(iters):
+        if ('geno' in access):
+            summary_stats.summary_stats(model_flag, fname_root, num_pcs, itr, man_plot)
+        if ('sumstats' in access):
+            prs_base.prs_base(fname_root, model_flag, gwas_path, geno_path, pheno_path, covs_path, binary_target, itr)
+        if ('prs' in access):
+            if args.realdata_directory is not None:
+                real_data_df = pd.read_csv(args.realdata_directory)
+            else: 
+                real_data_df = None
+                fname_root_out = fname_root
+            results_dict_erm,results_dict_irm = fairPRS.fairprs(real_data_df, fname_root, itr = itr,
+                        plot_input_dists = plot_input_dists, plot_output_dists = plot_output_dists, test_size = 0.10 , val_size = 0.22,
+                        rnd_state = rnd_state, gpu = gpu, num_pcs = num_pcs, num_envs = num_envs, model_flag = model_flag,
+                        trait_flag = trait_flag, num_covs = num_covs, fname_root_out = fname_root_out)
+            
+            # Results summary and return full results dictionary 
+            results_df_erm = results_summary(results_dict_erm, 'ERM', model_flag, fname_root_out, itr, saveres)
+            results_df_irm = results_summary(results_dict_irm, 'IRM', model_flag, fname_root_out, itr, saveres)
+                
+            if (itr+1)%10 == 0:
+                print(f'{itr} iterations completed.')
+                print('='*40)
+                
+    print("--- Total run time in %s seconds ---" % (time.time() - begin_time))

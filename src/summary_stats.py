@@ -1,4 +1,4 @@
-import subprocess
+import subprocess, string
 import pandas as pd
 import numpy as np
 
@@ -13,6 +13,7 @@ def summary_stats(model_flag, fname_root, num_pcs, itr, man_plot):
     if itr%10 == 0:
         print('>>>>>>>>>>>>>>>>>>>>>> Computing GWAS <<<<<<<<<<<<<<<<<<<<<<')
     # Compute PCS / covariates
+    num_pcs = str(num_pcs)
     tera_pca_train_cmd = '~/TeraPCA/TeraPCA.exe -bfile ../data/'+model_flag+'/'+fname_root+'_train_'+str(itr)+' -nsv '+num_pcs+' -filewrite 1 -prefix ../data/'+model_flag+'/'+fname_root+'_train_PCA_out_'+str(itr)
     tera_pca_prs_train_cmd = '~/TeraPCA/TeraPCA.exe -bfile ../data/'+model_flag+'/'+fname_root+'_PRS_train_'+str(itr)+' -nsv '+num_pcs+' -filewrite 1 -prefix ../data/'+model_flag+'/'+fname_root+'_PRS_train_PCA_out_'+str(itr)
     tera_pca_prs_test_cmd = '~/TeraPCA/TeraPCA.exe -bfile ../data/'+model_flag+'/'+fname_root+'_PRS_test_'+str(itr)+' -nsv '+num_pcs+' -filewrite 1 -prefix ../data/'+model_flag+'/'+fname_root+'_PRS_test_PCA_out_'+str(itr)

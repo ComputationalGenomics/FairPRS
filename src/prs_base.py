@@ -2,7 +2,7 @@ import subprocess
 import numpy as np
 import pandas as pd
 
-def prs_base(fname_root, model_flag, gwas_path, geno_path, pheno_path, covs_path, target_path, binary_target, itr):
+def prs_base(fname_root, model_flag, gwas_path, geno_path, pheno_path, covs_path, binary_target, itr):
     ### Compute PRS ###
     if itr%10 == 0:
         print('>>>>>>>>>>>>>>>>>>>>>> Computing PRS <<<<<<<<<<<<<<<<<<<<<<')
@@ -32,8 +32,8 @@ def prs_base(fname_root, model_flag, gwas_path, geno_path, pheno_path, covs_path
         target_train_data_path = '../data/'+model_flag+'/'+fname_root+'_PRS_train_'+str(itr)
         target_test_data_path = '../data/'+model_flag+'/'+fname_root+'_PRS_test_'+str(itr)
     else:
-        target_train_data_path = target_path.split(' ')[0]   
-        target_test_data_path = target_path.split(' ')[1]      
+        target_train_data_path = geno_path.split(' ')[0]   
+        target_test_data_path = geno_path.split(' ')[1]      
     
     if pheno_path is None:
         pheno_train_data_path = '../data/'+model_flag+'/'+fname_root+'_pheno_out_train_'+str(itr)+'.txt'
