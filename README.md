@@ -4,13 +4,17 @@ A fairness framework for Polygenic Risk Scores
 FairPRS proposes an Invariant Risk Minimization (IRM) approach for estimating fair PRS or debiasing pre-computed ones.
 FairPRS offers an entire pipeline from genetic data to trait prediction. It has three possible access points for input: genotypes, genotypes with summary statistics, or a pre-computed PRS.
 
-### Input - Output parameters
-  
+## Pipeline structure
+![FairPRS pipline showing 3 key access points with their respective key methods and inputs.](https://github.com/ComputationalGenomics/FairPRS/blob/main/Supplementary/FairPRS_pipeline_figure.png?raw=true)
+*FairPRS pipline showing 3 key access points with their respective key methods and inputs.*
+
+## Input - Output parameters
+Access point 1 (`--access geno`)  
 If starting at the genotype access point of the pipeline, the required inputs are:
 - Plink files (BED,BIM,FAM) containing the genotype data for GWAS, FairPRS training and testing, respectively (total of 9).
 - For example, geno_train.bed/bim/fam, geno_prs_train.bed/bim/fam, geno_prs_test.bed/bim/fam
 
-Access point 1 (`--access geno`) will save files for the formated summary statistics, and covariates (age, sex, principal component (PC), etc.) files for each input in the data directory.
+Access point 1 will save files for the formated summary statistics, and covariates (age, sex, principal component (PC), etc.) files for each input in the data directory.
 
 
 Moreover, to compute the PRS the following files are required per PRS computation.
@@ -39,14 +43,14 @@ Access point 3 (`--access prs`) will save files containing the summary of result
 
 results_ret = {
 - 'metrics':{'R2_og_train', 'R2_og_val', 'R2_og_test', 'R2_pred_train', 'R2_pred_val', 'R2_pred_test', 'r2_prs_train', 'r2_prs_val', 'r2_prs_test', 'r2_pheno_train', 'r2_pheno_val', 'r2_pheno_test', 'loss_train', 'loss_val', 'loss_test'},
-- 'data':{ 'PRS_og_train', 'PRS_og_val', 'PRS_og_test', 'PRS_pred_train', 'PRS_pred_val', 'PRS_pred_test', 'Pheno_og_train', 'Pheno_og_val', 'Pheno_og_test', 'Pheno_pred_train', 'Pheno_pred_val', 'Pheno_pred_test', 'ancs_train', 'ancs_val', 'ancs_test', 'pcs_train', 'pcs_val', 'pcs_test', 'deciles_r2s_pred_train',  'deciles_r2s_pred_val', 'deciles_r2s_pred_test', 'deciles_r2s_og_train', 'deciles_r2s_og_val', 'deciles_r2s_og_test'},
+- 'data':{'ids_train','ids_val','ids_test','PRS_og_train', 'PRS_og_val', 'PRS_og_test', 'PRS_pred_train', 'PRS_pred_val', 'PRS_pred_test', 'Pheno_og_train', 'Pheno_og_val', 'Pheno_og_test', 'Pheno_pred_train', 'Pheno_pred_val', 'Pheno_pred_test', 'ancs_train', 'ancs_val', 'ancs_test', 'pcs_train', 'pcs_val', 'pcs_test', 'deciles_r2s_pred_train',  'deciles_r2s_pred_val', 'deciles_r2s_pred_test', 'deciles_r2s_og_train', 'deciles_r2s_og_val', 'deciles_r2s_og_test'},
 - 'hyperparams':{
           'lr', 'pen_mult', 'units'}
       
   }
 
 
-### Flags
+## Flags
 -  `-a --access` -> Access point flag. Takes comma separated inputs {geno, sumstat, prs}. E.g. `--access sumstat,prs`. Access points: (geno) - GWAS and PCA computation, (sumstat) - PRS computation, (prs) - Run FairPRS model training/tuning/evaluation.
 - `-d  --dir` -> Path to the real PRS dataset when starting at access point 3.
 - `-plot_inp_dist  --plot_input_distributions` -> Enter (1 - yes, 0 no) to plot input PRS distributions.
@@ -68,7 +72,7 @@ results_ret = {
 
 
 
-### Demo run / call
+## Demo run / call
 #### Compute PCs and train/tune model with sample data
 ```
 python fairPRS_wrapper.py --access geno,sumstats,prs --random_seed 42 -iters 1 -tun 1 -plot_inp_dist 1 -plot_out_dist 1 -envs 3 --trait 1 --model PSD -num_pop 6 -fi PSD_10_20_70_continuous_0.05 -num_pcs 8 -num_cov 0
@@ -81,10 +85,21 @@ python fairPRS_wrapper.py --access prs -iters 10 -plot_inp_dist 1 -plot_out_dist
 ```
 Note: UKB data is not included in this repository, command just for ilustration purposes.
 
-### Repo structure
+## Dependencies
+- Pandas
+- Numpy
+- Pytorch 1.12
+- Seaborn
+- Scikit-learn
+- PLINK2.0 - https://www.cog-genomics.org/plink/2.0/
+- TeraPCA - https://github.com/aritra90/TeraPCA
+- PRSice - https://www.prsice.info/
+
+
+## Repo structure
 Two main folders, src and data. src contains the FairPRS code, while data contains all the sample data described above.
 
-### Contact
+## Contact
 Diego Machado Reyes (machad at rpi dot edu) 
 
 Aritra Bose (a dot bose at ibm dot com)
