@@ -5,7 +5,7 @@ FairPRS proposes an Invariant Risk Minimization (IRM) approach for estimating fa
 FairPRS offers an entire pipeline from genetic data to trait prediction. It has three possible access points for input: genotypes, genotypes with summary statistics, or a pre-computed PRS.
 
 ## Pipeline structure
-![FairPRS pipline showing 3 key access points with their respective key methods and inputs.](https://github.com/ComputationalGenomics/FairPRS/blob/main/Supplementary/FairPRS_pipeline_figure.png?raw=true)
+![FairPRS pipline showing 3 key access points with their respective key methods and inputs.](https://github.com/ComputationalGenomics/FairPRS/blob/main/Supplementary/FairPRS_pipeline_fig.png?raw=true)
 *FairPRS pipline showing 3 key access points with their respective key methods and inputs.*
 
 ## Input - Output parameters
