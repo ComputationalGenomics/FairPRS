@@ -91,6 +91,7 @@ Note: UKB data is not included in this repository, command just for ilustration 
 - Pytorch 1.12
 - Seaborn
 - Scikit-learn
+- Statsmodels
 - PLINK2.0 - https://www.cog-genomics.org/plink/2.0/
 - TeraPCA - https://github.com/aritra90/TeraPCA
 - PRSice - https://www.prsice.info/
