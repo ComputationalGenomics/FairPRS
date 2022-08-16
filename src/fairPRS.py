@@ -19,7 +19,7 @@ def fairprs(real_data_df, fname_root, itr, plot_input_dists = True, plot_output_
         simrel = 1
     else:
         if plot_input_dists:
-            all_train_data, train_datasets, val_data, test_data, X_train, X_test = data_prep(real_data_df, val_size, test_size, num_pcs, num_covs, num_envs, rnd_state, plot_input_dists)
+            all_train_data, train_datasets, val_data, test_data, X_train, X_test, ancs_map = data_prep(real_data_df, val_size, test_size, num_pcs, num_covs, num_envs, rnd_state, plot_input_dists)
         else:
             all_train_data, train_datasets, val_data, test_data = data_prep(real_data_df, val_size, test_size, num_pcs, num_covs, num_envs, rnd_state, plot_input_dists)
         simrel = 0
@@ -31,8 +31,8 @@ def fairprs(real_data_df, fname_root, itr, plot_input_dists = True, plot_output_
         if real_data_df is None:
             plot_ins_simdata(fname_root, itr, model_flag)
         else:
-            plot_ins(X_train, fname_root_out, itr, model_flag, 'train')
-            plot_ins(X_test, fname_root_out, itr, model_flag, 'test')
+            plot_ins(X_train, fname_root_out, itr, model_flag, 'train', ancs_map)
+            plot_ins(X_test, fname_root_out, itr, model_flag, 'test', ancs_map)
 
     ### Run FairPRS autotunning ###
     print('>>>>>>>>>>>>>>>>>>>>>> Autotuning and Evaluating FairPRS <<<<<<<<<<<<<<<<<<<<<<')
@@ -56,12 +56,5 @@ def fairprs(real_data_df, fname_root, itr, plot_input_dists = True, plot_output_
         plot_fname = [fname_root_out,str(itr)]
         plot_out(results_dict_irm, plot_fname, model_flag, 'test', simrel)
         plot_out(results_dict_irm, plot_fname, model_flag, 'train', simrel)
-
-
-        # plot_fname = fname_root_out+'_Phenotype_test_'+str(itr)
-        # plot_out(results_dict_irm, plot_fname, model_flag, 'test')
-        # plot_fname = fname_root_out+'_Phenotype_test_predicted_'+str(itr)
-        # plot_out(results_dict_irm, plot_fname, model_flag, 'train')
-        
 
     return results_erm_tun,results_irm_tun

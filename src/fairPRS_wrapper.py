@@ -1,4 +1,5 @@
 import os, argparse, time, subprocess, string
+import re
 import pandas as pd
 import summary_stats
 import prs_base
@@ -65,8 +66,8 @@ def parse_arguments():
     parser.add_argument("-fair", "--fairPRS_calc", dest='step3', action='store', help='Enter 1 if you want to compute FairPRS for your data.', metavar='STEP3', default=0)
     parser.add_argument("-prs_path", "--PRS_load_path", dest='PRS_load_path', action='store', help='Enter the path to your PRS files', metavar='PRSPATH')
     parser.add_argument("-model_train", "--model_training", dest='model_training', action='store', help='Do you want to trainany models? 1-yes 0-no', metavar='MODELTRAIN')
-    parser.add_argument("-plot_inp_dist", "--plot_input_distributions", dest='plot_input_dists', action='store', help='Do you want to plot the PRS distributions of input data? 1- yes  0- no', metavar='PLOTINPUT')
-    parser.add_argument("-plot_out_dist", "--plot_output_distributions", dest='plot_output_dists', action='store', help='Do you want to plot the PRS and Phenotype distributions of output data? 1- yes  0- no', metavar='PLOTOUTPUT')
+    parser.add_argument("-plot_inp_dist", "--plot_input_distributions", dest='plot_input_dists', action='store', help='Do you want to plot the PRS distributions of input data? 1- yes  0- no', metavar='PLOTINPUT', default= 1)
+    parser.add_argument("-plot_out_dist", "--plot_output_distributions", dest='plot_output_dists', action='store', help='Do you want to plot the PRS and Phenotype distributions of output data? 1- yes  0- no', metavar='PLOTOUTPUT', default= 1)
     parser.add_argument("-man_plot", "--manhattan_plot", dest='man_plot', action='store', help='Do you want to plot the Manhattan plot? 1- yes  0- no', metavar='PLOTOUTPUT', default=0)
     parser.add_argument("-train_fname", "--train_data_file_name", dest='train_fname', action='store', help='Enter training PRS file name (must be stored in data/model/fname', metavar='TRAINFNAME')
     parser.add_argument("-test_fname", "--test_data_file_name", dest='test_fname', action='store', help='Enter test PRS file name (must be stored in data/model/fname)', metavar='TESTFNAME')
@@ -129,6 +130,8 @@ if __name__ == '__main__':
     
     if args.fname_out_root is not None:
         fname_root_out = args.fname_out_root
+        if args.fname_prefix_root is None:
+            fname_root = fname_root_out
 
     model_flag = args.model_flag
     num_pcs = int(args.num_pcs)

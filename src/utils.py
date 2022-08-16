@@ -71,6 +71,7 @@ def plot_pheno_dist(prs_fname = None ,popids_fname= None, PRS_df = None, popids_
 def plot_out(results_dict_irm, plot_fname, model_flag, train_test, simrel):
     # Plot predicted PRS distributions per population
     ancs = pd.DataFrame(results_dict_irm['data'][str('ancs_'+train_test)])
+    print(ancs)
     uniques = np.unique(ancs.iloc[:,0], return_counts = True)[0]
     ancs_mapping_inv = dict(zip(np.arange(len(uniques)),uniques))
     ancs.iloc[:,0] = ancs.iloc[:,0].map(ancs_mapping_inv)
@@ -102,10 +103,7 @@ def results_summary(results_dict, mod_name, model_flag, fname_root_out, itr, sav
             pickle.dump(results_dict, f)
     return metrics_df_out
 
-def plot_ins(X, fname_root_out, itr, model_flag, train_test):
-    # Create model specific results directory
-    uniques = np.unique(popids_df.iloc[:,0], return_counts = True)[0]
-    ancs_mapping_inv = dict(zip(np.arange(len(uniques)),uniques))
+def plot_ins(X, fname_root_out, itr, model_flag, train_test, ancs_mapping_inv):
     # Plot PRS dist for real data all 
     popids_df = pd.DataFrame(X[:,2])
     popids_df.iloc[:,0] = popids_df.iloc[:,0].map(ancs_mapping_inv)
@@ -121,6 +119,7 @@ def data_prep(real_data_df, val_size, test_size, num_pcs, num_covs, num_envs, rn
     # Real data should be a data frame with eids, prs, pheno, ancs, :covariates
     uniques = np.unique(real_data_df['ancs'], return_counts = True)[0]
     ancs_mapping = dict(zip(uniques,np.arange(len(uniques))))
+    ancs_mapping_inv = dict(zip(np.arange(len(uniques)),uniques))
     real_data_df['ancs'] = real_data_df['ancs'].map(ancs_mapping)
 
     X_train, X_test, y_train, y_test = train_test_split(real_data_df.loc[:,real_data_df.columns != 'pheno'], real_data_df['pheno'], test_size=test_size, random_state=rnd_state)
@@ -141,9 +140,9 @@ def data_prep(real_data_df, val_size, test_size, num_pcs, num_covs, num_envs, rn
     pop_ids_test = np.expand_dims(X_test[:,2],1)
     y_test = np.expand_dims(y_test,1)
     
-    pcs_train = X_train[:,3:(num_covs + num_pcs)]
-    pcs_val = X_val[:,3:(num_covs + num_pcs)]
-    pcs_test = X_test[:,3:(num_covs + num_pcs)]
+    pcs_train = X_train[:,3:(num_covs + num_pcs + 3)]
+    pcs_val = X_val[:,3:(num_covs + num_pcs + 3)]
+    pcs_test = X_test[:,3:(num_covs + num_pcs + 3)]
 
     # Split train into enviornments
     ids_train_chunks = np.array_split(X_train[:,0],num_envs)
@@ -159,9 +158,9 @@ def data_prep(real_data_df, val_size, test_size, num_pcs, num_covs, num_envs, rn
     all_train_data = PRS(X_train[:,0], X_train[:,1],y_train, pcs_train, pop_ids_train)
     val_data = PRS(X_val[:,0], X_val[:,1], y_val, pcs_val, pop_ids_val)
     test_data = PRS(X_test[:,0], X_test[:,1], y_test, pcs_test, pop_ids_test)
-
+    
     if plot_input_dists:
-        return all_train_data, train_datasets, val_data, test_data, X_train, X_test
+        return all_train_data, train_datasets, val_data, test_data, X_train, X_test, ancs_mapping_inv
     else:
         return all_train_data, train_datasets, val_data, test_data
 
