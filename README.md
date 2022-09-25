@@ -31,8 +31,8 @@ If `plot_inp_dist` flag activated, it will also save KDE plots for each input wi
 For access point 3 (`--access prs`), one file containing the following data is required:
 - EID - First column contains the sample IDs.
 - PRS - Second column should contain all the PRS scores.
-- Population IDs - Third column should have the phenotype.
-- Phenotype - Fourth column should contain the phenotype (Please make sure this column's header is 'pheno')
+- Population IDs - Third column should have the ancestries / population groups (eg. White, Black, Asian). (Please make sure this column's header is 'ancs'. Can be strings or integers.)
+- Phenotype - Fourth column should contain the phenotype (Please make sure this column's header is 'pheno'. Can be either integer or float )
 - Covariates - The remaining columns should contain the covariates to include (e.g Age, Sex, PCs). Based on the covariates flag the number of these to be included can be selected.
 
 Similarly to the previous access point, if started at access point 2, all required files are generated in step 1 except for the population IDs (which are provided as part of the demo data).
@@ -75,7 +75,7 @@ results_ret = {
 ## Demo run / call
 #### Compute PCs and train/tune model with sample data
 ```
-python fairPRS_wrapper.py --access geno,sumstats,prs --random_seed 42 -iters 1 -tun 1 -plot_inp_dist 1 -plot_out_dist 1 -envs 3 --trait 1 --model PSD -num_pop 6 -fi PSD_10_20_70_continuous_0.05 -num_pcs 8 -num_cov 0
+python fairPRS_wrapper.py --access geno,sumstats,prs --random_seed 42 -iters 1 -tun 1 -plot_inp_dist 1 -plot_out_dist 1 -envs 3 --trait 1 --model PSD -num_pop 3 -fi PSD_10_20_70_continuous_0.05 -num_pcs 8 -num_cov 0
 ```
 Note: Option `--access geno` is disabled as the genotype files for GWAS are too large to be hosted in GitHub.
 After cloning the repo `cd src` and run the comand above. It will perform the baseline PRS calculation, train, tune and evaluate FairPRS using the available sample data.

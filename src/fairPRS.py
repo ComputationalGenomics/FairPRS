@@ -10,6 +10,8 @@ def fairprs(real_data_df, fname_root, itr, plot_input_dists = True, plot_output_
         os.system(str('mkdir ../results/'+model_flag))
     if not os.path.isdir(str('../results/'+model_flag+'/plots')):
         os.system(str('mkdir ../results/'+model_flag+'/plots'))
+    if not os.path.isdir(str('../results/'+model_flag+'/fairprs_scores_only')):
+        os.system(str('mkdir ../results/'+model_flag+'/fairprs_scores_only'))
 
     if itr%10 == 0:
         print('>>>>>>>>>>>>>>>>>>>>>> Loading and processing data <<<<<<<<<<<<<<<<<<<<<<')

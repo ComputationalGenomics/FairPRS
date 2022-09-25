@@ -292,7 +292,8 @@ def tuner(train_data, test_data, all_train_data=None, irm=True, config = None, n
             best_trained_model = nn.DataParallel(best_trained_model)
     best_trained_model.to(device)
 
-    best_checkpoint_dir = best_trial.checkpoint.value
+    # best_checkpoint_dir = best_trial.checkpoint.value #new line below to adapt to new Ray Tune version
+    best_checkpoint_dir = best_trial.checkpoint.dir_or_data 
     model_state, optimizer_state = torch.load(os.path.join(
         best_checkpoint_dir, "checkpoint"))
     best_trained_model.load_state_dict(model_state)

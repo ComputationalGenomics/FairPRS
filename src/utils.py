@@ -97,11 +97,27 @@ def results_summary(results_dict, mod_name, model_flag, fname_root_out, itr, sav
     metrics_df = pd.concat(temp)
     metrics_df_out =  pd.DataFrame(metrics_df.loc[:,['loss_train','loss_test','R2_og_test','R2_pred_test','r2_prs_train','r2_prs_test','r2_pheno_train','r2_pheno_test' ]].mean()).T
     print(f'Average {mod_name} model results: train MSE {round(metrics_df_out["loss_train"][0],5)}, test MSE {round(metrics_df_out["loss_test"][0],5)}, R2 original PRS {round(metrics_df_out["R2_og_test"][0],5)}, R2 predicted PRS {round(metrics_df_out["R2_pred_test"][0],5)}, r2 prs {round(metrics_df_out["r2_prs_test"][0],5)},r2 pheno {round(metrics_df_out["r2_pheno_test"][0],5)}')
-
+     
     if saveres:
+        # Save new PRSs for easy access. Will save one csv per iteration with each file containing 2 coulmns original and predicted PRS (FairPRS).
+        temp_prs_og = []
+        temp_prs_pred = []
+        for k in results_dict.keys():
+            temp_prs_og.extend(results_dict[k]['data']['PRS_og_train'])
+            temp_prs_og.extend(results_dict[k]['data']['PRS_og_val'])
+            temp_prs_og.extend(results_dict[k]['data']['PRS_og_test'])
+            temp_prs_pred.extend(np.asarray(results_dict[k]['data']['PRS_pred_train']).flatten().tolist())
+            temp_prs_pred.extend(np.asarray(results_dict[k]['data']['PRS_pred_val']).flatten().tolist())
+            temp_prs_pred.extend(np.asarray(results_dict[k]['data']['PRS_pred_test']).flatten().tolist())
+            fairprss_df = pd.DataFrame(zip(temp_prs_og,temp_prs_pred))
+            fairprss_df.columns = ['Original PRS', 'FairPRS']
+            fairprss_df.to_csv(str('../results/'+model_flag+'/fairprs_scores_only/'+mod_name+'_'+fname_root_out+'_iter_'+str(k)+'_results_fairprss_only.csv'), index=False)
+
+        # Save dictionary of all results and configs
         with open(str('../results/'+model_flag+'/'+mod_name+'_'+fname_root_out+'_'+str(itr)+'_iters_results_dictionary.pkl'), 'wb') as f:
             pickle.dump(results_dict, f)
     return metrics_df_out
+
 
 def plot_ins(X, fname_root_out, itr, model_flag, train_test, ancs_mapping_inv):
     # Plot PRS dist for real data all 
