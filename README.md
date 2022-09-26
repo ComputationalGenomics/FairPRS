@@ -86,9 +86,12 @@ python fairPRS_wrapper.py --access prs -iters 10 -plot_inp_dist 1 -plot_out_dist
 Note: UKB data is not included in this repository, command just for ilustration purposes.
 
 ## Dependencies
+For easy environment creation use the `fairprs.yml` file.
+To create the conda environment use: `conda env create -f fairprs.yml`.
 - Pandas
 - Numpy
 - Pytorch 1.12
+- Ray Tune
 - Seaborn
 - Scikit-learn
 - Statsmodels
@@ -98,7 +101,7 @@ Note: UKB data is not included in this repository, command just for ilustration 
 
 
 ## Repo structure
-Two main folders, src and data. src contains the FairPRS code, while data contains all the sample data described above.
+Two main folders, src and data. `src` contains the FairPRS code, while `data` contains all the sample data described above.
 
 ## Contact
 Diego Machado Reyes (machad at rpi dot edu) 
